@@ -783,7 +783,7 @@ async function handleSportteryDetail(req, res) {
 
 function safeFilePath(requestPath) {
   const pathname = decodeURIComponent(new URL(requestPath, "http://local").pathname);
-  const requested = pathname === "/" ? "/index.html" : pathname;
+  const requested = pathname === "/" ? "/ticket-assistant.html" : pathname;
   const resolved = path.normalize(path.join(PUBLIC_DIR, requested));
   if (!resolved.startsWith(PUBLIC_DIR)) return null;
   return resolved;
