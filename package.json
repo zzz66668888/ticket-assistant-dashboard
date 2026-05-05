@@ -1,0 +1,13 @@
+{
+  "name": "ticket-assistant-dashboard",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A compliant ticket and drop-sale preparation dashboard with countdowns, checklists, and public entry latency checks.",
+  "scripts": {
+    "start": "node server.js",
+    "check": "node --check server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -1,0 +1,1774 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>开售助手看板</title>
+    <style>
+      :root {
+        --bg: #f4f6f7;
+        --surface: #ffffff;
+        --surface-2: #f8fafb;
+        --ink: #18212b;
+        --muted: #64717f;
+        --line: #dde4e8;
+        --red: #df2f3f;
+        --red-soft: #fff1f2;
+        --teal: #008c84;
+        --teal-soft: #e8f6f4;
+        --amber: #b96a00;
+        --amber-soft: #fff4df;
+        --blue: #246bca;
+        --blue-soft: #edf5ff;
+        --shadow: 0 18px 42px rgba(30, 44, 62, 0.09);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        min-width: 320px;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--ink);
+        background:
+          linear-gradient(180deg, rgba(223, 47, 63, 0.08), rgba(244, 246, 247, 0) 280px),
+          var(--bg);
+        font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+      }
+
+      button,
+      input,
+      select {
+        font: inherit;
+      }
+
+      button {
+        cursor: pointer;
+      }
+
+      svg {
+        flex: 0 0 auto;
+      }
+
+      .app-shell {
+        min-height: 100vh;
+      }
+
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        min-height: 64px;
+        padding: 10px 22px;
+        border-bottom: 1px solid rgba(221, 228, 232, 0.78);
+        background: rgba(255, 255, 255, 0.92);
+        backdrop-filter: blur(16px);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
+      }
+
+      .brand-mark {
+        display: grid;
+        place-items: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        color: #fff;
+        background: var(--red);
+        box-shadow: 0 12px 24px rgba(223, 47, 63, 0.24);
+      }
+
+      .brand p,
+      .brand h1 {
+        margin: 0;
+      }
+
+      .brand p {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .brand h1 {
+        overflow: hidden;
+        font-size: 20px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .top-actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 34px;
+        padding: 0 12px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        color: var(--muted);
+        background: #fff;
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .icon-button,
+      .primary-button,
+      .ghost-button,
+      .text-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 38px;
+        border-radius: 8px;
+        font-weight: 800;
+        text-decoration: none;
+      }
+
+      .icon-button {
+        width: 38px;
+        padding: 0;
+        border: 1px solid var(--line);
+        color: var(--ink);
+        background: #fff;
+      }
+
+      .primary-button {
+        padding: 0 14px;
+        border: 1px solid var(--red);
+        color: #fff;
+        background: var(--red);
+      }
+
+      .ghost-button {
+        padding: 0 12px;
+        border: 1px solid var(--line);
+        color: var(--ink);
+        background: #fff;
+      }
+
+      .text-button {
+        padding: 0 6px;
+        border: 0;
+        color: var(--blue);
+        background: transparent;
+      }
+
+      .icon-button:hover,
+      .ghost-button:hover,
+      .text-button:hover,
+      .primary-button:hover {
+        transform: translateY(-1px);
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 330px minmax(0, 1fr) 360px;
+        gap: 18px;
+        padding: 18px;
+      }
+
+      .panel {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--surface);
+        box-shadow: var(--shadow);
+      }
+
+      .panel-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 16px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .panel-head h2,
+      .panel-head h3,
+      .focus-title h2,
+      .focus-title p,
+      .section-label,
+      .mini-label {
+        margin: 0;
+      }
+
+      .panel-head h2,
+      .focus-title h2 {
+        font-size: 20px;
+      }
+
+      .panel-head h3 {
+        font-size: 17px;
+      }
+
+      .section-label,
+      .mini-label {
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .controls {
+        display: grid;
+        gap: 10px;
+        padding: 14px;
+      }
+
+      .search-box {
+        position: relative;
+      }
+
+      .search-box svg {
+        position: absolute;
+        top: 50%;
+        left: 12px;
+        color: var(--muted);
+        transform: translateY(-50%);
+      }
+
+      .search-box input,
+      select {
+        width: 100%;
+        min-height: 42px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        color: var(--ink);
+        background: #fff;
+      }
+
+      .search-box input {
+        padding: 0 12px 0 40px;
+      }
+
+      select {
+        padding: 0 10px;
+      }
+
+      .segmented {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 6px;
+        padding: 4px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--surface-2);
+      }
+
+      .segmented button {
+        min-width: 0;
+        min-height: 34px;
+        border: 0;
+        border-radius: 6px;
+        color: var(--muted);
+        background: transparent;
+        font-size: 13px;
+        font-weight: 800;
+      }
+
+      .segmented button.active {
+        color: #fff;
+        background: var(--ink);
+      }
+
+      .event-list {
+        display: grid;
+        gap: 10px;
+        max-height: calc(100vh - 270px);
+        min-height: 360px;
+        overflow: auto;
+        padding: 0 14px 14px;
+      }
+
+      .event-card {
+        width: 100%;
+        min-height: 134px;
+        padding: 12px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        text-align: left;
+        background: #fff;
+      }
+
+      .event-card.active {
+        border-color: var(--red);
+        box-shadow: inset 4px 0 0 var(--red);
+      }
+
+      .event-card-top,
+      .event-card-foot,
+      .card-meta,
+      .badge-row,
+      .metric-row,
+      .check-row,
+      .tool-row,
+      .log-row,
+      .stock-row,
+      .modal-foot {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .event-card-top,
+      .event-card-foot,
+      .metric-row,
+      .tool-row,
+      .stock-row {
+        justify-content: space-between;
+      }
+
+      .event-name {
+        display: block;
+        margin: 10px 0 8px;
+        font-size: 15px;
+        line-height: 1.35;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        min-height: 24px;
+        padding: 0 9px;
+        border-radius: 999px;
+        color: var(--muted);
+        background: var(--surface-2);
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .badge.hot {
+        color: #c62232;
+        background: var(--red-soft);
+      }
+
+      .badge.ready {
+        color: #00746e;
+        background: var(--teal-soft);
+      }
+
+      .badge.wait {
+        color: #9b5900;
+        background: var(--amber-soft);
+      }
+
+      .main-stack {
+        display: grid;
+        gap: 18px;
+        min-width: 0;
+      }
+
+      .focus {
+        position: relative;
+        overflow: hidden;
+      }
+
+      .focus-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 280px;
+        gap: 18px;
+        padding: 18px;
+      }
+
+      .focus-title {
+        display: grid;
+        gap: 10px;
+        min-width: 0;
+      }
+
+      .focus-title h2 {
+        font-size: 28px;
+        line-height: 1.2;
+      }
+
+      .focus-title p {
+        color: var(--muted);
+        line-height: 1.7;
+      }
+
+      .hero-art {
+        width: 100%;
+        min-height: 230px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: linear-gradient(140deg, #1f2933 0%, #293845 55%, #fff5ef 56%, #fff 100%);
+      }
+
+      .countdown-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 18px;
+      }
+
+      .time-box,
+      .metric-box,
+      .zone,
+      .stock-card {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+      }
+
+      .time-box {
+        min-height: 86px;
+        padding: 12px;
+      }
+
+      .time-box span,
+      .metric-box span,
+      .stock-card span {
+        display: block;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .time-box strong {
+        display: block;
+        margin-top: 8px;
+        font-size: 28px;
+      }
+
+      .action-strip {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+        padding: 14px 18px 18px;
+      }
+
+      .notice {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 12px;
+        border: 1px solid #ffd3d8;
+        border-radius: 8px;
+        color: #8f1d2a;
+        background: var(--red-soft);
+        line-height: 1.65;
+      }
+
+      .notice svg {
+        margin-top: 2px;
+      }
+
+      .grid-2 {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 18px;
+      }
+
+      .zone {
+        padding: 16px;
+      }
+
+      .zone h3 {
+        margin: 0 0 12px;
+        font-size: 17px;
+      }
+
+      .metric-box {
+        display: grid;
+        gap: 8px;
+        padding: 12px;
+      }
+
+      .metric-box strong {
+        font-size: 18px;
+      }
+
+      .metric-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .stock-list,
+      .checklist,
+      .tool-list,
+      .log-list,
+      .strategy-list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .stock-card {
+        padding: 12px;
+      }
+
+      .stock-card strong {
+        display: block;
+        margin-top: 4px;
+      }
+
+      .zone-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+
+      .zone-title h3 {
+        margin: 0;
+      }
+
+      .latency-table {
+        display: grid;
+        gap: 8px;
+        margin-top: 12px;
+      }
+
+      .latency-row,
+      .strategy-card {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+      }
+
+      .latency-row {
+        display: grid;
+        grid-template-columns: 76px minmax(0, 1fr) 86px;
+        gap: 10px;
+        align-items: center;
+        min-height: 44px;
+        padding: 8px 10px;
+        font-size: 13px;
+      }
+
+      .latency-row strong {
+        color: var(--ink);
+      }
+
+      .latency-row span {
+        color: var(--muted);
+      }
+
+      .strategy-card {
+        padding: 12px;
+      }
+
+      .strategy-card strong {
+        display: block;
+        margin-bottom: 5px;
+      }
+
+      .strategy-card p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.55;
+      }
+
+      .progress {
+        overflow: hidden;
+        height: 8px;
+        margin-top: 10px;
+        border-radius: 999px;
+        background: #edf1f3;
+      }
+
+      .progress i {
+        display: block;
+        width: var(--value);
+        height: 100%;
+        border-radius: inherit;
+        background: var(--teal);
+      }
+
+      .check-row {
+        min-height: 42px;
+        padding: 8px 10px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+      }
+
+      .check-row input {
+        width: 18px;
+        height: 18px;
+        accent-color: var(--teal);
+      }
+
+      .check-row span {
+        flex: 1;
+        line-height: 1.45;
+      }
+
+      .side-stack {
+        display: grid;
+        align-content: start;
+        gap: 18px;
+      }
+
+      .side-stack .panel {
+        box-shadow: none;
+      }
+
+      .side-body {
+        padding: 14px;
+      }
+
+      .tool-row {
+        min-height: 48px;
+        padding: 10px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+      }
+
+      .tool-row div {
+        min-width: 0;
+      }
+
+      .tool-row strong,
+      .log-row strong {
+        display: block;
+      }
+
+      .tool-row span,
+      .log-row span {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .switch {
+        position: relative;
+        display: inline-flex;
+        width: 48px;
+        height: 28px;
+      }
+
+      .switch input {
+        position: absolute;
+        opacity: 0;
+      }
+
+      .switch i {
+        width: 100%;
+        height: 100%;
+        border-radius: 999px;
+        background: #c9d3d9;
+        transition: 0.18s ease;
+      }
+
+      .switch i::after {
+        content: "";
+        position: absolute;
+        top: 4px;
+        left: 4px;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #fff;
+        transition: 0.18s ease;
+      }
+
+      .switch input:checked + i {
+        background: var(--teal);
+      }
+
+      .switch input:checked + i::after {
+        transform: translateX(20px);
+      }
+
+      .log-row {
+        align-items: flex-start;
+        padding: 10px;
+        border-left: 3px solid var(--line);
+        background: var(--surface-2);
+      }
+
+      .log-row.current {
+        border-left-color: var(--red);
+        background: var(--red-soft);
+      }
+
+      .empty {
+        padding: 18px;
+        color: var(--muted);
+        text-align: center;
+      }
+
+      .modal {
+        position: fixed;
+        inset: 0;
+        z-index: 40;
+        display: none;
+        place-items: center;
+        padding: 20px;
+        background: rgba(24, 33, 43, 0.42);
+      }
+
+      .modal.open {
+        display: grid;
+      }
+
+      .modal-card {
+        width: min(560px, 100%);
+        border-radius: 8px;
+        background: #fff;
+        box-shadow: 0 24px 70px rgba(0, 0, 0, 0.22);
+      }
+
+      .modal-card form {
+        display: grid;
+        gap: 12px;
+        padding: 18px;
+      }
+
+      .field {
+        display: grid;
+        gap: 6px;
+      }
+
+      .field label {
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .field input,
+      .field select {
+        min-height: 42px;
+        padding: 0 10px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+      }
+
+      .modal-foot {
+        justify-content: flex-end;
+        padding-top: 6px;
+      }
+
+      .tooltip {
+        position: relative;
+      }
+
+      .tooltip::after {
+        content: attr(aria-label);
+        position: absolute;
+        right: 0;
+        bottom: -36px;
+        z-index: 3;
+        display: none;
+        width: max-content;
+        max-width: 220px;
+        padding: 7px 9px;
+        border-radius: 6px;
+        color: #fff;
+        background: #25313d;
+        font-size: 12px;
+        line-height: 1.4;
+      }
+
+      .tooltip:hover::after {
+        display: block;
+      }
+
+      @media (max-width: 1180px) {
+        .layout {
+          grid-template-columns: 300px minmax(0, 1fr);
+        }
+
+        .side-stack {
+          grid-column: 1 / -1;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .event-list {
+          max-height: none;
+        }
+      }
+
+      @media (max-width: 860px) {
+        .topbar,
+        .layout,
+        .action-strip {
+          align-items: stretch;
+        }
+
+        .topbar {
+          position: static;
+          flex-direction: column;
+        }
+
+        .top-actions {
+          justify-content: flex-start;
+        }
+
+        .layout,
+        .focus-grid,
+        .grid-2,
+        .side-stack {
+          grid-template-columns: 1fr;
+        }
+
+        .countdown-grid,
+        .metric-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .hero-art {
+          min-height: 200px;
+        }
+      }
+
+      @media (max-width: 560px) {
+        .layout {
+          padding: 12px;
+        }
+
+        .topbar {
+          padding: 12px;
+        }
+
+        .brand h1 {
+          white-space: normal;
+        }
+
+        .focus-title h2 {
+          font-size: 22px;
+        }
+
+        .countdown-grid,
+        .metric-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .primary-button,
+        .ghost-button,
+        .text-button {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <svg width="0" height="0" aria-hidden="true" focusable="false">
+      <symbol id="icon-ticket" viewBox="0 0 24 24">
+        <path d="M2 9a3 3 0 0 0 0 6v3a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-3a3 3 0 0 1 0-6V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v3Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+        <path d="M13 5v2m0 4v2m0 4v2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+      </symbol>
+      <symbol id="icon-bell" viewBox="0 0 24 24">
+        <path d="M10 20a2 2 0 0 0 4 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        <path d="M4 17h16l-2-3v-4a6 6 0 0 0-12 0v4l-2 3Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+      </symbol>
+      <symbol id="icon-refresh" viewBox="0 0 24 24">
+        <path d="M20 11a8 8 0 0 0-14.2-5M4 5v6h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        <path d="M4 13a8 8 0 0 0 14.2 5M20 19v-6h-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+      </symbol>
+      <symbol id="icon-plus" viewBox="0 0 24 24">
+        <path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+      </symbol>
+      <symbol id="icon-search" viewBox="0 0 24 24">
+        <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2" />
+        <path d="m16.2 16.2 3.8 3.8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+      </symbol>
+      <symbol id="icon-shield" viewBox="0 0 24 24">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+        <path d="m9 12 2 2 4-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+      </symbol>
+      <symbol id="icon-link" viewBox="0 0 24 24">
+        <path d="M10 13a5 5 0 0 0 7.1 0l2-2a5 5 0 0 0-7.1-7.1l-1.1 1.1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        <path d="M14 11a5 5 0 0 0-7.1 0l-2 2A5 5 0 0 0 12 20.1l1.1-1.1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+      </symbol>
+      <symbol id="icon-clock" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2" />
+        <path d="M12 7v5l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+      </symbol>
+      <symbol id="icon-bag" viewBox="0 0 24 24">
+        <path d="M6 8h12l1 12H5L6 8Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+        <path d="M9 8a3 3 0 0 1 6 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+      </symbol>
+    </svg>
+
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark"><svg width="22" height="22"><use href="#icon-ticket" /></svg></div>
+          <div>
+            <p>合规提醒与准备工具</p>
+            <h1>开售助手看板</h1>
+          </div>
+        </div>
+        <div class="top-actions">
+          <span class="status-pill"><svg width="16" height="16"><use href="#icon-shield" /></svg>仅手动购买</span>
+          <button id="refreshBtn" class="icon-button tooltip" type="button" aria-label="刷新模拟状态">
+            <svg width="18" height="18"><use href="#icon-refresh" /></svg>
+          </button>
+          <button id="addOpenBtn" class="primary-button" type="button">
+            <svg width="18" height="18"><use href="#icon-plus" /></svg>新增目标
+          </button>
+        </div>
+      </header>
+
+      <main class="layout">
+        <aside class="panel">
+          <div class="panel-head">
+            <div>
+              <p class="section-label">目标列表</p>
+              <h2 id="targetCount">0 个目标</h2>
+            </div>
+            <span id="readyCount" class="badge ready">0 个已准备</span>
+          </div>
+
+          <div class="controls">
+            <div class="search-box">
+              <svg width="18" height="18"><use href="#icon-search" /></svg>
+              <input id="searchInput" type="search" placeholder="搜索艺人、商品、平台" />
+            </div>
+            <div class="segmented" aria-label="目标类型筛选">
+              <button class="active" type="button" data-kind="all">全部</button>
+              <button type="button" data-kind="show">演出</button>
+              <button type="button" data-kind="shop">购物</button>
+            </div>
+            <select id="platformFilter" aria-label="平台筛选">
+              <option value="">全部平台</option>
+            </select>
+          </div>
+
+          <div id="eventList" class="event-list"></div>
+        </aside>
+
+        <section class="main-stack">
+          <section class="panel focus">
+            <div class="focus-grid">
+              <div class="focus-title">
+                <div class="badge-row">
+                  <span id="focusType" class="badge hot">开售提醒</span>
+                  <span id="focusPlatform" class="badge">平台</span>
+                  <span id="focusStatus" class="badge wait">待开售</span>
+                </div>
+                <h2 id="focusName">选择一个目标</h2>
+                <p id="focusMeta">左侧目标会同步倒计时、库存状态、提醒开关和购买前检查清单。</p>
+                <div class="countdown-grid">
+                  <div class="time-box"><span>天</span><strong id="timeDay">0</strong></div>
+                  <div class="time-box"><span>小时</span><strong id="timeHour">00</strong></div>
+                  <div class="time-box"><span>分钟</span><strong id="timeMinute">00</strong></div>
+                  <div class="time-box"><span>秒</span><strong id="timeSecond">00</strong></div>
+                </div>
+              </div>
+
+              <svg class="hero-art" viewBox="0 0 280 230" role="img" aria-label="演出和购物开售场景插画">
+                <rect x="24" y="32" width="124" height="78" rx="8" fill="#fff" opacity="0.94" />
+                <path d="M39 88h95M39 56h76M39 72h58" stroke="#df2f3f" stroke-width="7" stroke-linecap="round" />
+                <circle cx="223" cy="62" r="28" fill="#fff4df" stroke="#b96a00" stroke-width="4" />
+                <path d="M211 62h24M223 50v24" stroke="#b96a00" stroke-width="6" stroke-linecap="round" />
+                <path d="M52 164c22-38 50-57 84-57s62 19 84 57" fill="none" stroke="#edf5ff" stroke-width="18" stroke-linecap="round" />
+                <rect x="37" y="145" width="72" height="48" rx="8" fill="#008c84" />
+                <rect x="126" y="133" width="94" height="62" rx="8" fill="#df2f3f" />
+                <path d="M54 145a19 19 0 0 1 38 0M151 133a22 22 0 0 1 44 0" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" />
+                <path d="M41 204h196" stroke="#18212b" stroke-width="7" stroke-linecap="round" />
+              </svg>
+            </div>
+
+            <div class="action-strip">
+              <div id="policyNotice" class="notice">
+                <svg width="18" height="18"><use href="#icon-shield" /></svg>
+                <span>此页面只做提醒、清单和官方入口聚合，不执行自动下单、绕过排队、验证码处理或接口抢购。</span>
+              </div>
+              <a id="officialLink" class="primary-button" href="#" target="_blank" rel="noreferrer">
+                <svg width="18" height="18"><use href="#icon-link" /></svg>打开官方入口
+              </a>
+            </div>
+          </section>
+
+          <section class="grid-2">
+            <div class="zone">
+              <h3>开售信息</h3>
+              <div class="metric-grid">
+                <div class="metric-box"><span>预算</span><strong id="budgetText">-</strong></div>
+                <div class="metric-box"><span>优先档位</span><strong id="tierText">-</strong></div>
+                <div class="metric-box"><span>提醒时间</span><strong id="remindText">-</strong></div>
+              </div>
+            </div>
+            <div class="zone">
+              <h3>库存状态</h3>
+              <div id="stockList" class="stock-list"></div>
+            </div>
+          </section>
+
+          <section class="grid-2">
+            <div class="zone">
+              <div class="zone-title">
+                <h3>延迟测速与提前量</h3>
+                <button id="latencyBtn" class="ghost-button" type="button">
+                  <svg width="18" height="18"><use href="#icon-clock" /></svg>测当前入口
+                </button>
+              </div>
+              <div class="metric-grid">
+                <div class="metric-box"><span>平均延迟</span><strong id="latencyAvg">未测速</strong></div>
+                <div class="metric-box"><span>P95 延迟</span><strong id="latencyP95">-</strong></div>
+                <div class="metric-box"><span>失败率</span><strong id="latencyFail">-</strong></div>
+              </div>
+              <p id="leadAdvice" class="mini-label" style="margin-top: 12px">先测官方入口，再按 P95 和失败率安排提前进入时间。</p>
+              <div id="latencyTable" class="latency-table"></div>
+            </div>
+            <div class="zone">
+              <h3>高成功率方法拆解</h3>
+              <div id="strategyList" class="strategy-list"></div>
+            </div>
+          </section>
+
+          <section class="grid-2">
+            <div class="zone">
+              <h3>购买前检查</h3>
+              <div id="checklist" class="checklist"></div>
+            </div>
+            <div class="zone">
+              <h3>开售时间线</h3>
+              <div id="logList" class="log-list"></div>
+            </div>
+          </section>
+        </section>
+
+        <aside class="side-stack">
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <p class="section-label">提醒设置</p>
+                <h3>手动购买辅助</h3>
+              </div>
+              <svg width="20" height="20"><use href="#icon-bell" /></svg>
+            </div>
+            <div class="side-body">
+              <div class="tool-list">
+                <label class="tool-row">
+                  <div><strong>开售前提醒</strong><span>浏览器内提示，可手动记录到日历</span></div>
+                  <span class="switch"><input id="alarmToggle" type="checkbox" checked /><i></i></span>
+                </label>
+                <label class="tool-row">
+                  <div><strong>库存变化提醒</strong><span>本页模拟刷新状态，不访问平台接口</span></div>
+                  <span class="switch"><input id="stockToggle" type="checkbox" checked /><i></i></span>
+                </label>
+                <label class="tool-row">
+                  <div><strong>自动下单</strong><span>已禁用，需在官方渠道手动完成</span></div>
+                  <span class="switch"><input type="checkbox" disabled /><i></i></span>
+                </label>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <p class="section-label">准备度</p>
+                <h3 id="prepTitle">0% 完成</h3>
+              </div>
+              <svg width="20" height="20"><use href="#icon-clock" /></svg>
+            </div>
+            <div class="side-body">
+              <div class="progress"><i id="prepBar" style="--value: 0%"></i></div>
+              <p id="prepHint" class="mini-label" style="margin-top: 12px">完成实名、地址和支付准备后，再手动前往官方入口。</p>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <p class="section-label">快速动作</p>
+                <h3>本地模拟</h3>
+              </div>
+              <svg width="20" height="20"><use href="#icon-bag" /></svg>
+            </div>
+            <div class="side-body">
+              <div class="tool-list">
+                <button id="simulateBtn" class="ghost-button" type="button">
+                  <svg width="18" height="18"><use href="#icon-refresh" /></svg>模拟刷新状态
+                </button>
+                <button id="calendarBtn" class="ghost-button" type="button">
+                  <svg width="18" height="18"><use href="#icon-clock" /></svg>生成提醒摘要
+                </button>
+                <button id="copyBtn" class="ghost-button" type="button">
+                  <svg width="18" height="18"><use href="#icon-ticket" /></svg>复制准备清单
+                </button>
+              </div>
+            </div>
+          </section>
+        </aside>
+      </main>
+    </div>
+
+    <div id="addModal" class="modal" aria-hidden="true">
+      <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="panel-head">
+          <div>
+            <p class="section-label">新增目标</p>
+            <h3 id="modalTitle">添加开售提醒</h3>
+          </div>
+          <button id="closeModalBtn" class="icon-button tooltip" type="button" aria-label="关闭">
+            <svg width="18" height="18"><use href="#icon-plus" style="transform: rotate(45deg); transform-origin: center" /></svg>
+          </button>
+        </div>
+        <form id="addForm">
+          <div class="field">
+            <label for="nameField">名称</label>
+            <input id="nameField" required maxlength="48" placeholder="例如 某演唱会上海站 / 限量球鞋" />
+          </div>
+          <div class="field">
+            <label for="kindField">类型</label>
+            <select id="kindField">
+              <option value="show">演出</option>
+              <option value="shop">购物</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="platformField">平台</label>
+            <input id="platformField" required maxlength="24" placeholder="大麦、猫眼、淘宝、京东等" />
+          </div>
+          <div class="field">
+            <label for="timeField">开售时间</label>
+            <input id="timeField" required type="datetime-local" />
+          </div>
+          <div class="field">
+            <label for="urlField">官方入口</label>
+            <input id="urlField" type="url" placeholder="https://example.com" />
+          </div>
+          <div class="modal-foot">
+            <button id="cancelAddBtn" class="ghost-button" type="button">取消</button>
+            <button class="primary-button" type="submit">添加</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      const minute = 60 * 1000;
+      const hour = 60 * minute;
+      const day = 24 * hour;
+
+      const targets = [
+        {
+          id: "show-1",
+          kind: "show",
+          name: "银河回声巡演 上海站",
+          platform: "大麦",
+          venue: "梅赛德斯奔驰文化中心",
+          startsAt: new Date(Date.now() + 2 * day + 4 * hour + 16 * minute).toISOString(),
+          budget: "¥680 至 ¥1280",
+          tier: "内场 A / 看台 580",
+          remind: "开售前 15 分钟",
+          url: "https://www.damai.cn/",
+          status: "待开售",
+          stock: [
+            { label: "内场 A", value: 72, state: "充足" },
+            { label: "看台 580", value: 46, state: "紧张" },
+            { label: "看台 380", value: 18, state: "少量" }
+          ],
+          checks: ["实名观演人已确认", "收货地址已确认", "支付方式已确认", "官方 App 已登录"],
+          done: [true, true, false, false]
+        },
+        {
+          id: "festival-1",
+          kind: "show",
+          name: "海风音乐节 双日通票",
+          platform: "猫眼",
+          venue: "滨海公园草坪区",
+          startsAt: new Date(Date.now() + 7 * hour + 35 * minute).toISOString(),
+          budget: "¥399 至 ¥699",
+          tier: "双日通票",
+          remind: "开售前 30 分钟",
+          url: "https://www.maoyan.com/",
+          status: "即将开售",
+          stock: [
+            { label: "早鸟双日", value: 34, state: "紧张" },
+            { label: "普通双日", value: 79, state: "充足" },
+            { label: "单日票", value: 56, state: "正常" }
+          ],
+          checks: ["观演人信息已确认", "出行日期已确认", "支付方式已确认", "官方入口已收藏"],
+          done: [true, false, true, true]
+        },
+        {
+          id: "shop-1",
+          kind: "shop",
+          name: "限量联名运动鞋 42 码",
+          platform: "淘宝",
+          venue: "品牌旗舰店",
+          startsAt: new Date(Date.now() + 1 * day + 55 * minute).toISOString(),
+          budget: "¥899",
+          tier: "黑白配色 / 42 码",
+          remind: "开售前 10 分钟",
+          url: "https://www.taobao.com/",
+          status: "待开售",
+          stock: [
+            { label: "42 码", value: 41, state: "关注高" },
+            { label: "43 码", value: 24, state: "紧张" },
+            { label: "配件包", value: 63, state: "正常" }
+          ],
+          checks: ["收货地址已确认", "尺码已确认", "优惠券已领取", "官方店铺已关注"],
+          done: [true, true, false, true]
+        },
+        {
+          id: "shop-2",
+          kind: "shop",
+          name: "摄影器材补货提醒",
+          platform: "京东",
+          venue: "自营旗舰店",
+          startsAt: new Date(Date.now() + 4 * day + 2 * hour).toISOString(),
+          budget: "¥4599",
+          tier: "标准套装",
+          remind: "补货前 20 分钟",
+          url: "https://www.jd.com/",
+          status: "预约中",
+          stock: [
+            { label: "标准套装", value: 52, state: "预约" },
+            { label: "进阶套装", value: 27, state: "少量" },
+            { label: "备用电池", value: 81, state: "充足" }
+          ],
+          checks: ["收货地址已确认", "发票信息已确认", "支付额度已确认", "保修政策已阅读"],
+          done: [false, true, false, true]
+        }
+      ];
+
+      const strategies = [
+        {
+          title: "时间校准",
+          text: "借鉴抢票工具的时钟意识，但只用于提醒：按本机时间和开售时间做倒计时，避免晚几秒才进入。"
+        },
+        {
+          title: "入口预热",
+          text: "提前打开官方详情页、登录账号、确认实名和支付方式，把开售后的动作压缩成手动选择和支付。"
+        },
+        {
+          title: "延迟模型",
+          text: "低频测公开入口的平均延迟、P95 和失败率，用统计结果决定提前 30 秒、60 秒还是更早进入。"
+        },
+        {
+          title: "备选路径",
+          text: "同时准备 App、网页、官方小程序或旗舰店入口，某一路径拥堵时手动切换，不做接口撞击。"
+        },
+        {
+          title: "风控友好",
+          text: "避免高频刷新、多账号异常、脚本提交和验证码处理，这类行为会降低稳定性并带来封号风险。"
+        }
+      ];
+
+      const state = {
+        selectedId: targets[0].id,
+        kind: "all",
+        platform: "",
+        search: "",
+        tick: 0,
+        latencyLoading: false
+      };
+
+      const els = {
+        targetCount: document.querySelector("#targetCount"),
+        readyCount: document.querySelector("#readyCount"),
+        eventList: document.querySelector("#eventList"),
+        searchInput: document.querySelector("#searchInput"),
+        platformFilter: document.querySelector("#platformFilter"),
+        focusType: document.querySelector("#focusType"),
+        focusPlatform: document.querySelector("#focusPlatform"),
+        focusStatus: document.querySelector("#focusStatus"),
+        focusName: document.querySelector("#focusName"),
+        focusMeta: document.querySelector("#focusMeta"),
+        timeDay: document.querySelector("#timeDay"),
+        timeHour: document.querySelector("#timeHour"),
+        timeMinute: document.querySelector("#timeMinute"),
+        timeSecond: document.querySelector("#timeSecond"),
+        officialLink: document.querySelector("#officialLink"),
+        budgetText: document.querySelector("#budgetText"),
+        tierText: document.querySelector("#tierText"),
+        remindText: document.querySelector("#remindText"),
+        stockList: document.querySelector("#stockList"),
+        latencyBtn: document.querySelector("#latencyBtn"),
+        latencyAvg: document.querySelector("#latencyAvg"),
+        latencyP95: document.querySelector("#latencyP95"),
+        latencyFail: document.querySelector("#latencyFail"),
+        leadAdvice: document.querySelector("#leadAdvice"),
+        latencyTable: document.querySelector("#latencyTable"),
+        strategyList: document.querySelector("#strategyList"),
+        checklist: document.querySelector("#checklist"),
+        logList: document.querySelector("#logList"),
+        prepTitle: document.querySelector("#prepTitle"),
+        prepBar: document.querySelector("#prepBar"),
+        prepHint: document.querySelector("#prepHint"),
+        addModal: document.querySelector("#addModal"),
+        addForm: document.querySelector("#addForm"),
+        nameField: document.querySelector("#nameField"),
+        kindField: document.querySelector("#kindField"),
+        platformField: document.querySelector("#platformField"),
+        timeField: document.querySelector("#timeField"),
+        urlField: document.querySelector("#urlField")
+      };
+
+      function icon(name) {
+        return `<svg width="16" height="16"><use href="#${name}"></use></svg>`;
+      }
+
+      function escapeHtml(value) {
+        return String(value ?? "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      function pad(value) {
+        return String(value).padStart(2, "0");
+      }
+
+      function getSelected() {
+        return targets.find((item) => item.id === state.selectedId) || targets[0];
+      }
+
+      function kindLabel(kind) {
+        return kind === "shop" ? "购物秒杀" : "演出票务";
+      }
+
+      function timeLeft(target) {
+        const diff = new Date(target.startsAt).getTime() - Date.now();
+        const safe = Math.max(0, diff);
+        return {
+          total: diff,
+          days: Math.floor(safe / day),
+          hours: Math.floor((safe % day) / hour),
+          minutes: Math.floor((safe % hour) / minute),
+          seconds: Math.floor((safe % minute) / 1000)
+        };
+      }
+
+      function formatStart(value) {
+        return new Date(value).toLocaleString("zh-CN", {
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit"
+        });
+      }
+
+      function datetimeLocalValue(date) {
+        const local = new Date(date.getTime() - date.getTimezoneOffset() * minute);
+        return local.toISOString().slice(0, 16);
+      }
+
+      function prepPercent(target) {
+        const done = target.done.filter(Boolean).length;
+        return Math.round((done / target.done.length) * 100);
+      }
+
+      function formatMs(value) {
+        return Number.isFinite(value) ? `${value} ms` : "-";
+      }
+
+      function clamp(value, min, max) {
+        return Math.max(min, Math.min(max, value));
+      }
+
+      function recommendedLeadSeconds(target) {
+        const latency = target.latencyResult;
+        const p95 = Number(latency?.p95Ms);
+        const failureRate = Number(latency?.failureRate) || 0;
+        const base = target.kind === "shop" ? 35 : 45;
+        if (!Number.isFinite(p95)) return target.kind === "shop" ? 60 : 90;
+        return clamp(Math.ceil(base + p95 / 120 + failureRate * 0.8), 25, 180);
+      }
+
+      function formatLead(seconds) {
+        if (seconds < 60) return `${seconds} 秒`;
+        const mins = Math.floor(seconds / 60);
+        const rest = seconds % 60;
+        return rest ? `${mins} 分 ${rest} 秒` : `${mins} 分钟`;
+      }
+
+      function visibleTargets() {
+        const keyword = state.search.trim().toLowerCase();
+        return targets.filter((target) => {
+          if (state.kind !== "all" && target.kind !== state.kind) return false;
+          if (state.platform && target.platform !== state.platform) return false;
+          if (!keyword) return true;
+          return `${target.name} ${target.platform} ${target.venue}`.toLowerCase().includes(keyword);
+        });
+      }
+
+      function renderPlatformOptions() {
+        const platforms = [...new Set(targets.map((target) => target.platform))];
+        els.platformFilter.innerHTML = `<option value="">全部平台</option>${platforms
+          .map((platform) => `<option value="${escapeHtml(platform)}">${escapeHtml(platform)}</option>`)
+          .join("")}`;
+      }
+
+      function renderList() {
+        const items = visibleTargets();
+        const ready = targets.filter((target) => prepPercent(target) === 100).length;
+        els.targetCount.textContent = `${items.length} 个目标`;
+        els.readyCount.textContent = `${ready} 个已准备`;
+
+        if (!items.length) {
+          els.eventList.innerHTML = `<div class="empty">没有匹配的目标</div>`;
+          return;
+        }
+
+        els.eventList.innerHTML = items
+          .map((target) => {
+            const left = timeLeft(target);
+            const isActive = target.id === state.selectedId;
+            const percent = prepPercent(target);
+            const hotClass = left.total < 12 * hour ? "hot" : left.total < 2 * day ? "wait" : "";
+            return `
+              <button class="event-card ${isActive ? "active" : ""}" type="button" data-target-id="${escapeHtml(target.id)}">
+                <div class="event-card-top">
+                  <span class="badge ${target.kind === "shop" ? "ready" : "hot"}">${kindLabel(target.kind)}</span>
+                  <span class="mini-label">${formatStart(target.startsAt)}</span>
+                </div>
+                <strong class="event-name">${escapeHtml(target.name)}</strong>
+                <div class="card-meta">
+                  <span class="badge">${escapeHtml(target.platform)}</span>
+                  <span class="badge ${hotClass}">${left.total <= 0 ? "已开售" : `${left.days}天 ${pad(left.hours)}:${pad(left.minutes)}`}</span>
+                </div>
+                <div class="event-card-foot">
+                  <span class="mini-label">${escapeHtml(target.tier)}</span>
+                  <span class="badge ready">${percent}%</span>
+                </div>
+              </button>
+            `;
+          })
+          .join("");
+
+        els.eventList.querySelectorAll("[data-target-id]").forEach((button) => {
+          button.addEventListener("click", () => {
+            state.selectedId = button.dataset.targetId;
+            render();
+          });
+        });
+      }
+
+      function renderFocus(target) {
+        const left = timeLeft(target);
+        els.focusType.textContent = kindLabel(target.kind);
+        els.focusType.className = `badge ${target.kind === "shop" ? "ready" : "hot"}`;
+        els.focusPlatform.textContent = target.platform;
+        els.focusStatus.textContent = left.total <= 0 ? "已开售" : target.status;
+        els.focusStatus.className = `badge ${left.total <= 12 * hour ? "wait" : ""}`;
+        els.focusName.textContent = target.name;
+        els.focusMeta.textContent = `${target.venue}，开售时间 ${new Date(target.startsAt).toLocaleString("zh-CN")}。`;
+        els.timeDay.textContent = left.days;
+        els.timeHour.textContent = pad(left.hours);
+        els.timeMinute.textContent = pad(left.minutes);
+        els.timeSecond.textContent = pad(left.seconds);
+        els.officialLink.href = target.url || "#";
+        els.budgetText.textContent = target.budget;
+        els.tierText.textContent = target.tier;
+        els.remindText.textContent = target.remind;
+      }
+
+      function renderStock(target) {
+        els.stockList.innerHTML = target.stock
+          .map((item) => {
+            const badgeClass = item.value < 30 ? "hot" : item.value < 50 ? "wait" : "ready";
+            return `
+              <div class="stock-card">
+                <div class="stock-row">
+                  <div>
+                    <span>${escapeHtml(item.label)}</span>
+                    <strong>${escapeHtml(item.state)}</strong>
+                  </div>
+                  <span class="badge ${badgeClass}">${Math.max(5, item.value)}%</span>
+                </div>
+                <div class="progress"><i style="--value: ${Math.max(5, item.value)}%"></i></div>
+              </div>
+            `;
+          })
+          .join("");
+      }
+
+      function renderLatency(target) {
+        const result = target.latencyResult;
+        els.latencyBtn.disabled = state.latencyLoading || !target.url || target.url === "#";
+        els.latencyBtn.innerHTML = `${icon("icon-clock")}${state.latencyLoading ? "测速中" : "测当前入口"}`;
+
+        if (!result) {
+          els.latencyAvg.textContent = target.url && target.url !== "#" ? "未测速" : "无入口";
+          els.latencyP95.textContent = "-";
+          els.latencyFail.textContent = "-";
+          els.leadAdvice.textContent = target.url && target.url !== "#"
+            ? "建议先对官方入口做 3 次低频测速，再决定提前进入时间。"
+            : "添加官方入口 URL 后可以测公开页面延迟。";
+          els.latencyTable.innerHTML = `<div class="empty">暂无测速记录</div>`;
+          return;
+        }
+
+        const lead = recommendedLeadSeconds(target);
+        els.latencyAvg.textContent = formatMs(result.averageMs);
+        els.latencyP95.textContent = formatMs(result.p95Ms);
+        els.latencyFail.textContent = `${result.failureRate}%`;
+        els.leadAdvice.textContent = `建议至少提前 ${formatLead(lead)} 打开官方入口；若失败率升高，改用备用入口并减少刷新。`;
+        els.latencyTable.innerHTML = result.samples
+          .map((sample, index) => {
+            const stateText = sample.ok ? `HTTP ${sample.statusCode}` : sample.error || "失败";
+            return `
+              <div class="latency-row">
+                <strong>样本 ${index + 1}</strong>
+                <span>${escapeHtml(stateText)}</span>
+                <strong>${formatMs(sample.elapsedMs)}</strong>
+              </div>
+            `;
+          })
+          .join("");
+      }
+
+      function renderStrategies() {
+        els.strategyList.innerHTML = strategies
+          .map(
+            (item) => `
+              <div class="strategy-card">
+                <strong>${escapeHtml(item.title)}</strong>
+                <p>${escapeHtml(item.text)}</p>
+              </div>
+            `
+          )
+          .join("");
+      }
+
+      function renderChecklist(target) {
+        els.checklist.innerHTML = target.checks
+          .map(
+            (item, index) => `
+              <label class="check-row">
+                <input type="checkbox" data-check-index="${index}" ${target.done[index] ? "checked" : ""} />
+                <span>${escapeHtml(item)}</span>
+              </label>
+            `
+          )
+          .join("");
+
+        els.checklist.querySelectorAll("[data-check-index]").forEach((input) => {
+          input.addEventListener("change", () => {
+            target.done[Number(input.dataset.checkIndex)] = input.checked;
+            render();
+          });
+        });
+      }
+
+      function renderLogs(target) {
+        const left = timeLeft(target);
+        const lead = recommendedLeadSeconds(target);
+        const rows = [
+          { title: "确认官方入口", time: "现在", current: true },
+          { title: `提前 ${formatLead(lead)} 打开入口`, time: "按延迟建议", current: left.total <= lead * 1000 },
+          { title: target.remind, time: "提醒节点", current: left.total < hour },
+          { title: "开售手动进入", time: formatStart(target.startsAt), current: left.total <= 5 * minute },
+          { title: "完成后核对订单", time: "购买后", current: false }
+        ];
+        els.logList.innerHTML = rows
+          .map(
+            (row) => `
+              <div class="log-row ${row.current ? "current" : ""}">
+                ${icon(row.current ? "icon-clock" : "icon-shield")}
+                <div><strong>${escapeHtml(row.title)}</strong><span>${escapeHtml(row.time)}</span></div>
+              </div>
+            `
+          )
+          .join("");
+      }
+
+      function renderPrep(target) {
+        const percent = prepPercent(target);
+        els.prepTitle.textContent = `${percent}% 完成`;
+        els.prepBar.style.setProperty("--value", `${percent}%`);
+        els.prepHint.textContent =
+          percent === 100 ? "准备已经完整，可以等待开售后手动前往官方入口。" : "完成实名、地址和支付准备后，再手动前往官方入口。";
+      }
+
+      function render() {
+        const target = getSelected();
+        renderList();
+        renderFocus(target);
+        renderStock(target);
+        renderLatency(target);
+        renderStrategies();
+        renderChecklist(target);
+        renderLogs(target);
+        renderPrep(target);
+      }
+
+      function simulateStatus() {
+        const target = getSelected();
+        target.stock = target.stock.map((item) => {
+          const drift = Math.round(Math.random() * 24) - 14;
+          const value = Math.max(6, Math.min(96, item.value + drift));
+          return {
+            ...item,
+            value,
+            state: value < 22 ? "少量" : value < 45 ? "紧张" : value > 75 ? "充足" : "正常"
+          };
+        });
+        render();
+      }
+
+      async function measureCurrentLatency() {
+        const target = getSelected();
+        if (!target.url || target.url === "#") {
+          alert("请先为目标填写官方入口。");
+          return;
+        }
+
+        state.latencyLoading = true;
+        renderLatency(target);
+
+        try {
+          const response = await fetch(`/api/latency?url=${encodeURIComponent(target.url)}&samples=3`, { cache: "no-store" });
+          const payload = await response.json();
+          if (!response.ok) {
+            throw new Error(payload.error || "测速失败");
+          }
+          target.latencyResult = payload;
+        } catch (error) {
+          target.latencyResult = {
+            averageMs: null,
+            p95Ms: null,
+            failureRate: 100,
+            samples: [
+              {
+                ok: false,
+                elapsedMs: 0,
+                error: error.message || "测速失败",
+                checkedAt: new Date().toISOString()
+              }
+            ]
+          };
+        } finally {
+          state.latencyLoading = false;
+          render();
+        }
+      }
+
+      function buildSummary(target) {
+        return [
+          `目标：${target.name}`,
+          `平台：${target.platform}`,
+          `开售：${new Date(target.startsAt).toLocaleString("zh-CN")}`,
+          `预算：${target.budget}`,
+          `优先档位：${target.tier}`,
+          `建议提前：${formatLead(recommendedLeadSeconds(target))}`,
+          `清单：${target.checks.map((item, index) => `${target.done[index] ? "已完成" : "待完成"} ${item}`).join("；")}`,
+          "边界：本工具只做提醒和准备，不自动下单或绕过平台流程。"
+        ].join("\n");
+      }
+
+      document.querySelectorAll("[data-kind]").forEach((button) => {
+        button.addEventListener("click", () => {
+          state.kind = button.dataset.kind;
+          document.querySelectorAll("[data-kind]").forEach((item) => item.classList.toggle("active", item === button));
+          renderList();
+        });
+      });
+
+      els.searchInput.addEventListener("input", (event) => {
+        state.search = event.target.value;
+        renderList();
+      });
+
+      els.platformFilter.addEventListener("change", (event) => {
+        state.platform = event.target.value;
+        renderList();
+      });
+
+      document.querySelector("#refreshBtn").addEventListener("click", simulateStatus);
+      document.querySelector("#simulateBtn").addEventListener("click", simulateStatus);
+      els.latencyBtn.addEventListener("click", measureCurrentLatency);
+
+      document.querySelector("#calendarBtn").addEventListener("click", () => {
+        alert(buildSummary(getSelected()));
+      });
+
+      document.querySelector("#copyBtn").addEventListener("click", async () => {
+        const text = buildSummary(getSelected());
+        try {
+          await navigator.clipboard.writeText(text);
+          alert("准备清单已复制。");
+        } catch {
+          alert(text);
+        }
+      });
+
+      document.querySelector("#addOpenBtn").addEventListener("click", () => {
+        const now = new Date(Date.now() + day);
+        now.setSeconds(0, 0);
+        els.timeField.value = datetimeLocalValue(now);
+        els.addModal.classList.add("open");
+        els.addModal.setAttribute("aria-hidden", "false");
+        els.nameField.focus();
+      });
+
+      function closeModal() {
+        els.addModal.classList.remove("open");
+        els.addModal.setAttribute("aria-hidden", "true");
+        els.addForm.reset();
+      }
+
+      document.querySelector("#closeModalBtn").addEventListener("click", closeModal);
+      document.querySelector("#cancelAddBtn").addEventListener("click", closeModal);
+      els.addModal.addEventListener("click", (event) => {
+        if (event.target === els.addModal) closeModal();
+      });
+
+      els.addForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const kind = els.kindField.value;
+        const platform = els.platformField.value.trim();
+        const target = {
+          id: `custom-${Date.now()}`,
+          kind,
+          name: els.nameField.value.trim(),
+          platform,
+          venue: kind === "shop" ? "官方店铺" : "官方售票渠道",
+          startsAt: new Date(els.timeField.value).toISOString(),
+          budget: "待确认",
+          tier: "优先档位待确认",
+          remind: "开售前 15 分钟",
+          url: els.urlField.value.trim() || "#",
+          status: "待开售",
+          stock: [
+            { label: kind === "shop" ? "默认规格" : "默认票档", value: 60, state: "正常" },
+            { label: "备选规格", value: 45, state: "紧张" }
+          ],
+          checks:
+            kind === "shop"
+              ? ["收货地址已确认", "规格已确认", "支付方式已确认", "官方店铺已关注"]
+              : ["实名观演人已确认", "场次已确认", "支付方式已确认", "官方入口已收藏"],
+          done: [false, false, false, false]
+        };
+        targets.unshift(target);
+        state.selectedId = target.id;
+        renderPlatformOptions();
+        closeModal();
+        render();
+      });
+
+      setInterval(() => {
+        state.tick += 1;
+        renderFocus(getSelected());
+        renderList();
+      }, 1000);
+
+      renderPlatformOptions();
+      render();
+    </script>
+  </body>
+</html>
